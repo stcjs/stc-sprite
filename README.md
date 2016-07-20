@@ -17,7 +17,7 @@ stc.workflow({
 
 ## Options
 
-```json
+```
 {
   sprite_folders: '' // can also be an array of folders
   output_type: "png", // jpg or png
