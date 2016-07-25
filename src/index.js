@@ -134,6 +134,7 @@ export default class SpritePlugin extends Plugin {
 			coordMap.set(folder, coords);
 		}
 
+		// update tokens and then update files
 		for (let [dirtyFile, updateFns] of fileMap) {
 			promises.push(
 				dirtyFile.getAst()

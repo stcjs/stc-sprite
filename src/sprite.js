@@ -75,10 +75,3 @@ class Tile {
 		return this.item.y + this.margin;
 	}
 }
-
-function getType(path) {
-	try {
-		let [, type] = /(png|jpg|jpeg)$/.exec(path);
-		return type.toUpperCase();
-	} catch(err) {}
-}

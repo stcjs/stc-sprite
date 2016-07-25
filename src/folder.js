@@ -20,7 +20,7 @@ export default class FolderMatcher {
 
 		this.folders.forEach(folder => {
 			this.matchers.set(folder,
-				new RegExp(`^(.*)${folder.replace(/\//g, "\\\/")}(([\\w\\-@_]+)\\.(png|jpg|jpeg))$`)
+				new RegExp(`^(.*)${folder.replace(/\//g, "\\\/")}(([\\w\\-@_]+)\\.(png|jpg|jpeg))$`, 'i')
 			);
 		});
 	}
