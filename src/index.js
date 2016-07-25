@@ -99,7 +99,7 @@ export default class SpritePlugin extends Plugin {
 		fileMapperArr.push(updateFn);
 	}
 
-	async registerPicPromise(folder, picture) {
+	async registerPicPromise(folder, fullname, name) {
 		let map = await this.cache(PIC_CACHE_KEY);
 		if (!map) {
 			map = new Map();
@@ -109,7 +109,10 @@ export default class SpritePlugin extends Plugin {
 		let pictures = map.get(folder);
 		if (!pictures) {
 			pictures = new Set();
-			map.set(folder, folder + pictures);
+			map.set(folder, {
+				 path: folder + fullname,
+				 name
+			});
 		}
 
 		pictures.add(picture);
@@ -126,8 +129,8 @@ export default class SpritePlugin extends Plugin {
 		// making sprites and getting coordinates out of it
 		for (let [folder, pictures] of picMap) {
 			let sp = new SpriteMaker();
-			await Promise.all(Array.from(pictures).map(file => sp.addFile(file)))
-			let coords = await sp.save();
+			await Promise.all(Array.from(pictures).map(obj => sp.addFile(obj.path, obj.name)))
+			let coords = await sp.save(`${folder}sprite.${this.option.output}`, this.option.output);
 			coordMap.set(folder, coords);
 		}
 

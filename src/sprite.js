@@ -10,10 +10,10 @@ export default class SpriteMaker {
 		this.margin = margin;
 	}
 
-	async addFile(path) {
+	async addFile(path, name) {
 		let pic = gm(path);
 		let {width, height} = await promisify(pic.size, pic)();
-		let tile = new Tile(path, width, height);
+		let tile = new Tile(path, name, width, height, this.margin);
 		this.tiles.push(tile);
 
 		this.layer.addItem({
@@ -23,7 +23,7 @@ export default class SpriteMaker {
 		});
 	}
 
-	async save(outputPath) {
+	async save(outputPath, type) {
 		let layers = this.layer.export();
 		layers.items.forEach((item, index) => {
 			this.tiles[index].item = item;
@@ -39,7 +39,7 @@ export default class SpriteMaker {
 		});
 
 		prevGm.mosaic();
-		let buffers = await promisify(prevGm.toBuffer, prevGm)(getType(outputPath));
+		let buffers = await promisify(prevGm.toBuffer, prevGm)(type.toUpperCase());
 
 		let nextGm = gm(buffers);
 		let {width, height} = await promisify(nextGm.size, nextGm)();
@@ -61,19 +61,18 @@ export default class SpriteMaker {
 }
 
 class Tile {
-	constructor(path, width, height, margin) {
-		let [, name] = /([\w\-\.@]+.(?:png|jpg|jpeg))$/.exec(path);
+	constructor(path, name, width, height, margin) {
 		this.w = width;
 		this.h = height;
-		this.name = name;
 		this.path = path;
 		this.margin = margin;
+		this.name = name;
 	}
 	get x() {
-		return this.item.x + margin;
+		return this.item.x + this.margin;
 	}
 	get y() {
-		return this.item.y + margin;
+		return this.item.y + this.margin;
 	}
 }
 
