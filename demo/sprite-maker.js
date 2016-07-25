@@ -6,10 +6,7 @@ const promisify = require('stc-helper').promisify;
 let sp = new SpriteMaker("binary-tree", "transparent");
 
 glob("./img/*.png", function (err, files) {
-	let promises = files.map(file => {
-		let [, name] = /([\w\-\.@]+.(?:png|jpg|jpeg))$/.exec(file);
-		return sp.addFile(file, name)
-	});
+	let promises = files.map(file => sp.addFile(file));
 
 	Promise.all(promises)
 		.then(() => console.log('All added.'))

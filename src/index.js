@@ -61,13 +61,21 @@ export default class SpritePlugin extends Plugin {
 		]);
 	}
 
+	// Update function to be called eventually
+	// prev in CSS:
+	// 		`.pc { background-image: url(${prefix}${folder}${fullname}) }`
+	// post in CSS:
+	// 		`.pc { background-image: url(${prefix}${folder}sprite.${this.option.output});
+	// 		 background-position: ${tile.x}px ${tile.y}px; }`
+	// matching file:
+	// 		`${folder}${fullname}`
 	getUpdateFn(bgMapper, idx, prefix, folder, fullname) {
 		return function (allToken, coords) {
 			let coordInfo = coords.get(folder);
 			if (!coordInfo) {
 				return;
 			}
-			let tile = coordInfo.tiles.get(fullname);
+			let tile = coordInfo.tileMap.get(`${folder}${fullname}`);
 			if (!tile) {
 				return;
 			}
@@ -82,6 +90,8 @@ export default class SpritePlugin extends Plugin {
 		};
 	}
 
+	// set file mapping function
+	// stc-file => [updaterFn1, updaterFn2 ..]
 	async registerFilePromise(file, updateFn) {
 		// todo check if registered stuff is consistent in memory
 		let map = await this.cache(FILE_CACHE_KEY);
@@ -99,7 +109,10 @@ export default class SpritePlugin extends Plugin {
 		fileMapperArr.push(updateFn);
 	}
 
-	async registerPicPromise(folder, fullname, name) {
+	// set folder mapping function
+	// folder => ('a.png', 'b.png' ..)
+	// using set in case there's duplicate file registered
+	async registerPicPromise(folder, fullname) {
 		let map = await this.cache(PIC_CACHE_KEY);
 		if (!map) {
 			map = new Map();
@@ -109,13 +122,10 @@ export default class SpritePlugin extends Plugin {
 		let pictures = map.get(folder);
 		if (!pictures) {
 			pictures = new Set();
-			map.set(folder, {
-				 path: folder + fullname,
-				 name
-			});
+			map.set(folder, pictures);
 		}
 
-		pictures.add(picture);
+		pictures.add(`${folder}${fullname}`);
 	}
 
 	update(data) { } // do nothing
@@ -129,7 +139,7 @@ export default class SpritePlugin extends Plugin {
 		// making sprites and getting coordinates out of it
 		for (let [folder, pictures] of picMap) {
 			let sp = new SpriteMaker();
-			await Promise.all(Array.from(pictures).map(obj => sp.addFile(obj.path, obj.name)))
+			await Promise.all(Array.from(pictures).map(pic => sp.addFile(pic)));
 			let coords = await sp.save(`${folder}sprite.${this.option.output}`, this.option.output);
 			coordMap.set(folder, coords);
 		}

@@ -10,16 +10,16 @@ export default class SpriteMaker {
 		this.margin = margin;
 	}
 
-	async addFile(path, name) {
+	async addFile(path) {
 		let pic = gm(path);
 		let {width, height} = await promisify(pic.size, pic)();
-		let tile = new Tile(path, name, width, height, this.margin);
+		let tile = new Tile(path, width, height, this.margin);
 		this.tiles.push(tile);
 
 		this.layer.addItem({
 			height: tile.h + this.margin,
 			width: tile.w + this.margin,
-			meta: tile.name,
+			meta: tile.path,
 		});
 	}
 
@@ -48,25 +48,24 @@ export default class SpriteMaker {
 
 		let tileMap = new Map();
 		for(let tile of this.tiles) {
-			tileMap.set(tile.name, {
+			tileMap.set(tile.path, {
 				x: tile.x,
 				y: tile.y
 			});
 		}
 
-		return { width, height, tiles: tileMap };
+		return { width, height, tileMap };
 	}
 
 	async scale() { } // todo
 }
 
 class Tile {
-	constructor(path, name, width, height, margin) {
+	constructor(path, width, height, margin) {
 		this.w = width;
 		this.h = height;
 		this.path = path;
 		this.margin = margin;
-		this.name = name;
 	}
 	get x() {
 		return this.item.x + this.margin;
