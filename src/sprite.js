@@ -4,7 +4,10 @@ import {promisify} from 'stc-helper';
 
 export default class SpriteMaker {
 	constructor(algorithm = "binary-tree", background = "transparent", margin = 4) {
-		this.layer = layout(algorithm);
+		this.layer = layout(algorithm, {
+			sort: false,
+			// todo support sort
+		});
 		this.tiles = [];
 		this.background = background;
 		this.margin = margin;

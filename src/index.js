@@ -10,6 +10,7 @@ const FILE_CACHE_KEY = "cache_file";
 const PIC_CACHE_KEY = "cache_pic";
 
 const LEGAL_TYPES = "jpg png";
+const LEGAL_ALGORITHMS = "top-down left-right diagonal alt-diagonal binary-tree";
 
 export default class SpritePlugin extends Plugin {
 	/**
@@ -20,8 +21,16 @@ export default class SpritePlugin extends Plugin {
 			this.options._parsed = true;
 			this.options.matcher = new FolderMatcher(this.options.spriteFolders);
 
-			if (LEGAL_TYPES.indexOf(this.options.output) === -1) {
-				this.options.output = "png";
+			if (LEGAL_TYPES.indexOf(this.options.outputType) === -1) {
+				this.options.outputType = "png";
+			}
+
+			if (LEGAL_ALGORITHMS.indexOf(this.options.algorithm) === -1) {
+				this.options.algorithm = "binary-tree";
+			}
+
+			if (this.options.outputType !== "jpg") {
+				this.options.background = undefined;
 			}
 		}
 
@@ -69,7 +78,7 @@ export default class SpritePlugin extends Plugin {
 		}
 
 		let {folder, prefix, fullname, name, type} = retval;
-		bgMapper.url = `${prefix}${folder}sprite.${this.options.output}`;
+		bgMapper.url = `${prefix}${folder}sprite.${this.options.outputType}`;
 		let outValue = bgMapper + "";
 
 		this.registerPic(folder, relFile.path); // sprite files for each folder
@@ -83,12 +92,12 @@ export default class SpritePlugin extends Plugin {
 	// prev in CSS:
 	// 		`.pc { background-image: url(${prefix}${folder}${fullname}) }`
 	// post in CSS:
-	// 		`.pc { background-image: url(${prefix}${folder}sprite.${this.options.output});
+	// 		`.pc { background-image: url(${prefix}${folder}sprite.${this.options.outputType});
 	// 		 background-position: ${tile.x}px ${tile.y}px; }`
 	// matching file（in form of stc-file）:
-	// 		`${prefix}${folder}${fullname}`
+	// 		`${folder}${fullname}`
 	// and compile to（in form of stc-file）:
-	//		`${prefix}${folder}sprite.${this.options.output}`
+	//		`${folder}sprite.${this.options.outputType}`
 	getUpdateFn(token, folder, inPath, outValue) {
 		return (function (allToken, coordMap) {
 			let coordInfo = coordMap.get(folder);
@@ -118,7 +127,7 @@ export default class SpritePlugin extends Plugin {
 
 			// set background-position
 			let bgPositionToken = this.createRawToken('style', `background-position: -${tile.x}px -${tile.y}px;`); // width: ${tile.w}px; height: ${tile.h}px;
-			allToken.splice(idx + 2, 0, bgPositionToken); // todo a better way instead of using magic number 2
+			allToken.splice(idx + 2, 0, bgPositionToken); // todo prevent using magic number 2
 
 			// todo set background-size for @2x
 		}).bind(this);
@@ -176,16 +185,20 @@ export default class SpritePlugin extends Plugin {
 
 		// making sprites and getting coordinates out of it
 		for (let [folder, pictures] of picMap) {
-			let spriteMaker = new SpriteMaker(); // todo apply options
+			let spriteMaker = new SpriteMaker(
+				$this.options.algorithm,
+				$this.options.background,
+				$this.options.margin
+			); // todo apply options
 
 			let promises = Array.from(pictures).map(pic => spriteMaker.addFile(pic));
 			await Promise.all(promises);
 
-			let file = await $this.addFile(`${folder}sprite.${$this.options.output}`);
+			let file = await $this.addFile(`${folder}sprite.${$this.options.outputType}`);
 			// todo find a more subtle way of getting the output string
 			let coords = await spriteMaker.save(
 				file.path,
-				$this.options.output
+				$this.options.outputType
 			);
 			coordMap.set(folder, coords);
 		}
