@@ -37,6 +37,7 @@ lib/
 
 # For test
 demo/**/*.png
+demo/**/*.jpg
 
 # Env reltated
 .DS_Store
