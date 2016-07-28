@@ -48,10 +48,8 @@ export default class SpriteMaker {
 
 		let tileMap = new Map();
 		for(let tile of this.tiles) {
-			tileMap.set(tile.path, {
-				x: tile.x,
-				y: tile.y
-			});
+			let {x,y,w,h} = tile;
+			tileMap.set(tile.path, {x,y,w,h});
 		}
 
 		return { width, height, tileMap };

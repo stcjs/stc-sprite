@@ -32,8 +32,9 @@ For all layout algorithm, see explanations [here](https://github.com/twolfson/la
 
 ## Roadmap
 
-[ ] basic support
-[ ] append background-position after all attribute set
+[x] basic support
+[x] append background-position after all attribute set
+[x] margin support
 [ ] jpg support
-[ ] margin support
+[ ] background color support
 [ ] retina support
