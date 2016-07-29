@@ -15,6 +15,8 @@ stc.workflow({
 });
 ```
 
+![](graph-1.png)
+
 ## Options
 
 ```

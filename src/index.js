@@ -30,7 +30,11 @@ export default class SpritePlugin extends Plugin {
 			}
 
 			if (this.options.outputType !== "jpg") {
-				this.options.background = undefined;
+				this.options.background = "transparent";
+			} else {
+				if(!this.options.background) {
+					this.options.background = "#FFFFFF";
+				}
 			}
 		}
 
